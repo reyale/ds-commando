@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# echo ${@:1:$((${#@} - 1))}   # all arguments except the last
+
+head -1 "${@: -1}"
+grep ${@:1:$((${#@} - 1))} <(tail -n+2 "${@: -1}")

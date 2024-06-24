@@ -1,0 +1,55 @@
+#!/usr/bin/python3
+
+import io
+import argparse
+import pandas as pd
+import sys
+
+
+def load_pipe_input(args):
+    try:
+        df = pd.read_csv(sys.stdin, delimiter=args.delim)
+        sys.stdin = open('/dev/tty', 'r')  # detach from stdin
+        return df
+    except Exception as e:
+        print('failed to read stdin', e)
+        sys.exit(-2) 
+
+
+def load_csv_file(args):
+    try:
+        return pd.read_csv(args.csvfile, delimiter=args.delim)
+    except Exception as e:
+        print(f"Failed to load CSV file: {e}")
+        sys.exit(-2) 
+
+
+def drop_to_shell(df):
+    try:
+        from IPython import embed
+        embed(banner1="Entering Python REPL. 'df' is your DataFrame. Type 'exit()' or Ctrl-D to exit.")
+    except ImportError:
+        print('falling back to code.interact')
+        import code
+        code.interact(local=locals(), banner=banner)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Load a CSV file into a pandas DataFrame and drop into a Python REPL.")
+    parser.add_argument('csvfile', type=str, help='Path to the CSV file to load.', nargs='?') 
+    parser.add_argument('--delim', default=',', help='csv delimiter')
+    args = parser.parse_args()
+
+    if args.csvfile:
+        df = load_csv_file(args)
+    elif not sys.stdin.isatty():
+        df = load_pipe_input(args)
+    else:
+        print('no input provided - stdin or fname needed')
+        sys.exit(-1)
+
+    drop_to_shell(df)
+
+
+if __name__ == '__main__':
+    main()
