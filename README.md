@@ -2,7 +2,7 @@
 
 ## build
 
-build instructions:
+build instructions
 
 1. `cmake . && make`
 
@@ -29,7 +29,6 @@ Out[1]:
 4  5_1_5_1990-06-21_105       1                      5                    5        The Stock Tip  Tom Cherones  Larry David & Jerry Seinfeld        1990-06-21        105
 
 In [2]:
-
 
 ```
 
