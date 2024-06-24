@@ -6,6 +6,8 @@ build instructions:
 
 1. `cmake . && make`
 
+## utils
+
 ### load
 
 Base script that loads a dataframe and drops to terminal for investigation  `./load ./data/episode_master.csv`.
