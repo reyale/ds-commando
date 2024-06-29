@@ -12,6 +12,12 @@ build instructions
 
 Base script that loads a dataframe and drops to terminal for investigation  `load ./data/episode_master.csv`.
 
+Supported dataframe libraries:
+
+1. pandas - this is the default, can be overriden on command line or via configuration file at `~/.config/ds-commando/config.json`
+2. polars
+
+
 can take stdin: `cat ./data/episode_master.csv | load`
 
 ```
