@@ -10,9 +10,9 @@ build instructions
 
 ### load
 
-Base script that loads a dataframe and drops to terminal for investigation  `./load ./data/episode_master.csv`.
+Base script that loads a dataframe and drops to terminal for investigation  `load ./data/episode_master.csv`.
 
-1. can take stdin: `cat ./data/episode_master.csv | load`
+can take stdin: `cat ./data/episode_master.csv | load`
 
 ```
 
@@ -46,3 +46,20 @@ master_id,season,episode_num_in_season,episode_num_overall,title,directed_by,wri
 ### merge
 
 Simple c application to merge two csv files together
+
+
+```
+
+$ merge ./data/people1.csv ./data/people2.csv
+
+Name,Age,City
+Alice,30,New York
+Bob,25,Los Angeles
+Charlie,35,Chicago
+David,28,San Francisco
+Eve,22,Boston
+Frank,33,Seattle
+
+```
+
+Can take stdin
