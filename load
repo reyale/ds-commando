@@ -1,14 +1,64 @@
 #!/usr/bin/python3
 
+import os
 import io
 import argparse
-import pandas as pd
 import sys
 
 
-def load_pipe_input(args):
+def load_pandas():
+    import pandas as pd
+    return pd 
+
+
+def load_polars():
+    import polars as pl
+    return pl 
+
+
+def format_args(module, args):
+    if module.__name__ == 'pandas':
+        return { 'delimiter': args.delim }
+    elif module.__name__ == 'polars':
+        return { 'separator': args.delim }
+    else:
+        raise AssertionError('invalid_module: ' + module.__name__)
+
+
+def load_configuration():
+    settings = None
+    if os.path.exists('~/.config/ds-commando/config.json'):
+        with open(file_path, 'r') as f:
+            settings = json.load(f)
+        
+    return settings
+
+
+def determine_module(args):
+    if args.polars:
+        return load_polars()
+
+    config = load_configuration()
+    if config is not None:
+        module_name = config.get('module', 'pandas')
+        if module_name == 'polars':
+            return load_polars()
+        elif module_name == 'pandas':
+            return load_pandas()
+   
+    return load_pandas() 
+
+
+def is_parquet(fname):
+    PARQUET_MAGIC = b'PAR1'
+    with open(fname, 'rb') as f:
+        start_magic = f.read(4)
+        return start_magic == PARQUET_MAGIC
+
+
+def load_pipe_input(module, args, module_args):
     try:
-        df = pd.read_csv(sys.stdin, delimiter=args.delim)
+        df = module.read_csv(sys.stdin, **module_args) 
         sys.stdin = open('/dev/tty', 'r')  # detach from stdin
         return df
     except Exception as e:
@@ -16,9 +66,9 @@ def load_pipe_input(args):
         sys.exit(-2) 
 
 
-def load_csv_file(args):
+def load_csv_file(module, args, module_args):
     try:
-        return pd.read_csv(args.csvfile, delimiter=args.delim)
+        return module.read_csv(args.csvfile, **module_args)
     except Exception as e:
         print(f"Failed to load CSV file: {e}")
         sys.exit(-2) 
@@ -35,15 +85,19 @@ def drop_to_shell(df):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Load a CSV file into a pandas DataFrame and drop into a Python REPL.")
+    parser = argparse.ArgumentParser(description="Load a CSV file into a DataFrame and drop into a Python REPL.")
     parser.add_argument('csvfile', type=str, help='Path to the CSV file to load.', nargs='?') 
     parser.add_argument('--delim', default=',', help='csv delimiter')
+    parser.add_argument('--polars', default=False, action='store_true', help='use polars')
     args = parser.parse_args()
 
+    module = determine_module(args)
+    module_args = format_args(module, args)
+
     if args.csvfile:
-        df = load_csv_file(args)
+        df = load_csv_file(module, args, module_args)
     elif not sys.stdin.isatty():
-        df = load_pipe_input(args)
+        df = load_pipe_input(module, args, module_args)
     else:
         print('no input provided - stdin or fname needed')
         sys.exit(-1)
