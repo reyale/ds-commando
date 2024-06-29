@@ -63,3 +63,34 @@ Frank,33,Seattle
 ```
 
 Can take stdin
+
+```
+
+$ cat ./data/people1.csv | merge  data/people2.csv
+Name,Age,City
+Alice,30,New York
+Bob,25,Los Angeles
+Charlie,35,Chicago
+David,28,San Francisco
+Eve,22,Boston
+Frank,33,Seattle
+
+```
+
+Can take arbitrary number of inputs
+
+```
+
+$ cat ./data/people1.csv | ./merge  ./data/people2.csv  ./data/people1.csv
+Name,Age,City
+Alice,30,New York
+Bob,25,Los Angeles
+Charlie,35,Chicago
+David,28,San Francisco
+Eve,22,Boston
+Frank,33,Seattle
+Alice,30,New York
+Bob,25,Los Angeles
+Charlie,35,Chicag
+
+```
