@@ -6,6 +6,10 @@ build instructions
 
 1. `cmake . && make`
 
+## test
+
+`cmake . && make && ./test.sh`
+
 ## utils
 
 ### load
