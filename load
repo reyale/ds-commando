@@ -88,6 +88,7 @@ def main():
     parser.add_argument('csvfile', type=str, help='Path to the CSV file to load.', nargs='?') 
     parser.add_argument('--delim', default=',', help='csv delimiter')
     parser.add_argument('--polars', default=False, action='store_true', help='use polars')
+    parser.add_argument('--pandas', default=False, action='store_true', help='use pandas')
     args = parser.parse_args()
 
     module = determine_module(args)
