@@ -5,6 +5,7 @@
 #include <sys/select.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <fcntl.h>  // For posix_fadvise
 
 
 bool is_stdin() {
@@ -73,6 +74,9 @@ int main(int argc, char *argv[]) {
       free(fhandles);
       return 1;
     }
+
+    posix_fadvise(fileno(file), 0, 0, POSIX_FADV_SEQUENTIAL); //we do not handle the error, that is fine
+
     fhandles[num_files++] = file;
   }
 
