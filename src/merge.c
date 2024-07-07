@@ -17,9 +17,8 @@ bool is_stdin() {
   FD_ZERO(&readfds);
   FD_SET(STDIN_FILENO, &readfds);
 
-  // Wait up to 1 second.
-  tv.tv_sec = 1;
-  tv.tv_usec = 0;
+  tv.tv_sec = 0;
+  tv.tv_usec = 1;
 
   // Select returns 0 if timeout, 1 if input is available, -1 on error.
   retval = select(1, &readfds, NULL, NULL, &tv);
