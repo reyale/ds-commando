@@ -7,10 +7,18 @@
 #include <stdbool.h>
 #include <fcntl.h>  // For posix_fadvise
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 char* _read_buffer = NULL;
 size_t _buffer_size = 4096; // default is page size
 
+void get_buffer_size() {
+  long page_size = sysconf(_SC_PAGESIZE);
+  if(page_size <= -1)
+    return;
+
+  _buffer_size = MIN(page_size * 10, 1048576l);
+}
 
 bool is_stdin() {
   fd_set readfds;
@@ -91,6 +99,7 @@ void file_read_loop(FILE* file) {
 }
 
 int main(int argc, char *argv[]) {
+  get_buffer_size();
   bool there_is_cin = is_stdin(); 
 
   FILE** fhandles = (FILE**)malloc((argc - 1 + there_is_cin) * sizeof(FILE*));
