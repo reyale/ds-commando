@@ -84,7 +84,7 @@ void file_read_loop(FILE* file) {
       }
     }
 
-    if(read_location < write_location) {
+    if(read_location < write_location) { //TODO - circulate read/write?
       size_t move_len = write_location - read_location;
       memmove(_read_buffer, _read_buffer + read_location, move_len); 
       read_location = 0;
