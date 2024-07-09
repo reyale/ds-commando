@@ -8,6 +8,10 @@
 #include <fcntl.h>  // For posix_fadvise
 
 
+char* _read_buffer = NULL;
+size_t _buffer_size = 4096; // default is page size
+
+
 bool is_stdin() {
   fd_set readfds;
   struct timeval tv;
@@ -52,6 +56,39 @@ char* get_or_throw(FILE* file) {
   return line;
 }
 
+
+void file_read_loop(FILE* file) {
+
+  size_t write_location = 0;
+  size_t read_location = 0;
+
+  while(true) { 
+    size_t bytes_read = fread(_read_buffer + write_location, 1, _buffer_size - write_location, file);
+    write_location += bytes_read;
+    if(bytes_read <= 0)
+      break;
+
+    for(size_t i = read_location; i < write_location; ++i) {
+      if (_read_buffer[i] == '\n') {
+        _read_buffer[i] = '\0';
+        printf("%s\n", _read_buffer + read_location);
+        read_location = i + 1;
+      }
+    }
+
+    if(read_location < write_location) {
+      size_t move_len = write_location - read_location;
+      memmove(_read_buffer, _read_buffer + read_location, move_len); 
+      read_location = 0;
+      write_location = move_len;
+    }
+  } 
+
+  if (write_location>read_location) {
+    _read_buffer[write_location] = '\0';
+    printf("%s", _read_buffer + read_location);
+  }
+}
 
 int main(int argc, char *argv[]) {
   bool there_is_cin = is_stdin(); 
@@ -106,17 +143,15 @@ int main(int argc, char *argv[]) {
   printf("%s\n", header);
   free(header);
 
-  char* line = NULL;
-  size_t len = 0;
+  _read_buffer = (char*)malloc(_buffer_size * sizeof(char));
+
   for (int i = 0; i < num_files; ++i) {
-    while (getline(&line, &len, fhandles[i]) != -1) {
-        printf("%s", line); // No need to add a newline; it's included
-    }
+    file_read_loop(fhandles[i]);
     fclose(fhandles[i]);
   }
 
-  free(line); // Free the buffer allocated by getline
   free(fhandles);
+  free(_read_buffer);
 
   return 0;
 }
